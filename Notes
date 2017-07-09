@@ -43,3 +43,14 @@ What do Classes Have?
         Passive and Active
     Requirements
         Subclasses
+
+
+Beginning Steps:
+Create a character or load a character is one exists
+
+If the player loaded a character then they will be put back into where they saved
+
+Choose Name
+Get stats
+Choose Class
+Get put into the starting area
