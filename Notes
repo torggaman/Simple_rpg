@@ -1,0 +1,45 @@
+Random Notes:
+
+
+What is in a Character?
+    Health: Based on Level and Constitution along with any Gear
+    Magic: Based on Level and Intelligence
+    Endurance/ Stamina: Based on Level, Constitution and Strength
+    Drop Rate modifier: Based on Luck and Gear
+    Attack/ Walk Speed: Based on Dexterity
+    Stats(Strength, Intelligence, Dexterity, Constitution, Luck)
+    Skills/ Spells Known
+    Quests Taken
+    Quests Completed
+    Level
+    Experience
+    Money
+    Debt
+
+What Classes Are there:
+    Adventurer
+    Mage
+        Wizard
+            High Wizard
+    Warrior
+        Berserker
+        Knight
+            Kings Guard
+            Lancer
+    Archer
+        Ranger
+            Sniper
+    Merchant
+        Blacksmith
+        Alchemist
+    Cleric
+        Priest
+            Arch Priest
+
+What do Classes Have?
+    Health Modifier
+    Stat Modifier
+    Skills/ Spells
+        Passive and Active
+    Requirements
+        Subclasses
