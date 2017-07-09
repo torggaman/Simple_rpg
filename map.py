@@ -1,5 +1,6 @@
 import character
 
+
 class Basemap:
     name = ""
     width = 0
@@ -10,8 +11,8 @@ class Basemap:
 
 class Starting(Basemap):
     name = "Starting Area"
-    width = 10
-    height = 10
+    width = 4
+    height = 4
     type = "beginner"
     monsters = []
 
@@ -31,44 +32,6 @@ def createmap(yposition, xposition, mapname):
     displaymap(showmap)
 
 
-def moveplayer():
-    movement = True
-    while movement:
-        action = input("What direction?> ")
-        showmap[character.Playercharacter.mapyposition][character.Playercharacter.mapxposition] = ''
-        checking = checkmovement(action, character.Playercharacter.mapyposition,character.Playercharacter.mapxposition)
-        if action == "up":
-            if checking:
-                character.Playercharacter.mapyposition -= 1
-            else:
-                print("Cannot move that way")
-        elif action == "down":
-            if checking:
-                character.Playercharacter.mapyposition += 1
-            else:
-                print("Cannot move that way")
-        elif action == "left":
-            if checking:
-                character.Playercharacter.mapxposition -= 1
-            else:
-                print("Cannot move that way")
-        elif action == "right":
-            if checking:
-                character.Playercharacter.mapxposition += 1
-            else:
-                print("Cannot move that way")
-        elif action == "actions":
-            movement = False
-            return
-        elif not checking:
-            print("Try again")
-            print("You can type: Up, Down, Left, Right, or actions to leave movement")
-        else:
-            print("try again")
-        showmap[character.Playercharacter.mapyposition][character.Playercharacter.mapxposition] = 'P'
-        displaymap(showmap)
-
-
 def checkmovement(movement, currentpositiony, currentpositionx):
     if currentpositiony == 0 and movement is "up":
         return False
@@ -85,3 +48,6 @@ def checkmovement(movement, currentpositiony, currentpositionx):
 def displaymap(mapname):
     for y in mapname:
         print(y)
+
+def spawnmonster():
+    return
