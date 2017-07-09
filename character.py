@@ -98,13 +98,18 @@ class Basecharacter:
         self.getstats()
         self.chooseclass()
         self.gethealth()
-        self.magic = 50 + (self.intelligence * 5)
+        self.getmagic()
         self.stamina = 100 + (self.dexterity * 2)
 
     def gethealth(self):
         basehealth = 100
         modifiedhealth = (self.constitution * 10)
         self.health = (basehealth + modifiedhealth) * self.healthmodifier
+
+    def getmagic(self):
+        basemagic = 50
+        modifiedmagic = (self.intelligence * 5)
+        self.health = (basemagic + modifiedmagic) * self.magicmodifier
 
     def getstats(self):
         stats = {"strength": 0, "intelligence": 0, "dexterity": 0, "constitution": 0, "luck": 0}

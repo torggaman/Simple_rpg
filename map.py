@@ -38,7 +38,7 @@ def moveplayer(position):
         return
     else:
         print("Try again")
-        
+
 
 def checkmovement():
     return
