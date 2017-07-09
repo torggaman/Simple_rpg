@@ -35,7 +35,7 @@ class Merchant(Baseclass):
 
 class Cleric(Baseclass):
     skills = ["Cleric"]
-    subclasses = ["Preist"]
+    subclasses = ["Priest"]
 
 
 
