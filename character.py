@@ -33,10 +33,7 @@ class Basecharacter:
     constitutionmodifier = 1
     luckmodifier = 1
     requiredexperience = 1000
-    mapxposition = 0
-    mapyposition = 0
-    mapname = ""
-    roomname = ""
+    state = ""
 
     def levelup(self):
         while self.experience >= (self.level * self.requiredexperience):
@@ -141,6 +138,7 @@ class Basecharacter:
         return number
 
     def chooseclass(self):
+        choosing = True
         availableclasses = [c.ad.classname,
                             c.wa.classname,
                             c.ma.classname,
@@ -163,8 +161,6 @@ class Basecharacter:
                     self.healthmodifier += c.i.healthmodifier
                     self.magicmodifier += c.i.magicmodifier
                     self.staminamodifier += c.i.staminamodifier
-
-
         else:
             self.chooseclass()
 
