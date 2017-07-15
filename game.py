@@ -17,22 +17,22 @@ import menus
 
 pc = character.Playercharacter
 play = True
-charactercreated = False
-needmap = True
+character_created = False
+need_map = True
 # Run a check to see if player has a character
 
 def quitgame():
     return
 
 while play:
-    if not charactercreated:
-        pc.createcharacter()
-        map.Playerposition.mapname = "Starting"
+    if not character_created:
+        pc.create_character()
+        map.Playerposition.map_name = "Starting"
         print("Welcome to the world")
-        charactercreated = True
-    if needmap:
-        map.createmap(map.Playerposition.mapyposition, map.Playerposition.mapxposition, map.Playerposition.mapname)
-        needmap = False
+        character_created = True
+    if need_map:
+        map.createmap(map.Playerposition.map_y_position, map.Playerposition.map_x_position, map.Playerposition.map_name)
+        need_map = False
     action = input(pc.state + " > ")
     if pc.state == "looking at menu":
         menus.menuactions(action)

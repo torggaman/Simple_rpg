@@ -14,9 +14,13 @@ def playeraction(action):
             m.position.moveplayerleft()
         elif action == "right":
             m.position.moveplayerright()
-        m.addplayer()
-        m.displaymap()
+        m.redraw_character()
     elif action == "open menu":
         character.Playercharacter.state = "looking at menu"
+    elif action == "turn":
+        direction = input("What direction?> ")
+        m.turn_direction(direction)
+        m.removeplayer()
+        m.redraw_character()
     else:
         print("Please Try again")
