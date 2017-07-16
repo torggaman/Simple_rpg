@@ -137,6 +137,7 @@ class Basecharacter:
         self.stats["constitution"] = stats["constitution"]
         self.stats["luck"] = stats["luck"]
 
+
     def chooseclass(self):
         choosing = True
         availableclasses = [c.ad.classname,
