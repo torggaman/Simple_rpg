@@ -21,6 +21,7 @@ character_created = False
 need_map = True
 # Run a check to see if player has a character
 
+
 def quitgame():
     return
 

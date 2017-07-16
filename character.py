@@ -3,10 +3,18 @@ import classes as c
 
 
 class Basecharacter:
-    stats = {"strength": 1, "intelligence": 1, "dexterity": 1, "constitution": 1, "luck": 1, }
-    health = 0
-    magic = 0
-    stamina = 0
+    stats = {
+        "strength": 1,
+        "intelligence": 1,
+        "dexterity": 1,
+        "constitution": 1,
+        "luck": 1,
+        "health": 1,
+        "magic": 1,
+        "stamina": 1
+    }
+    magic = 1
+    stamina = 1
     drop_Rate = 1
     questsTaken = []
     questsComplete = []
@@ -96,22 +104,23 @@ class Basecharacter:
         self.chooseclass()
         self.get_health()
         self.get_magic()
-        self.stamina = 100 + (self.stats["dexterity"] * 2)
+        self.stats["stamina"] = 100 + (self.stats["dexterity"] * 2)
 
     def get_health(self):
         base_health = 100
         modified_health = (self.stats["constitution"] * 10)
-        self.health = (base_health + modified_health) * self.healthmodifier
+        self.stats["health"] = (base_health + modified_health) * self.healthmodifier
 
     def get_magic(self):
         basemagic = 50
         modifiedmagic = (self.stats["intelligence"] * 5)
-        self.health = (basemagic + modifiedmagic) * self.magicmodifier
+        self.stats["magic"] = (basemagic + modifiedmagic) * self.magicmodifier
 
     def get_stats(self):
         stats = {"strength": 0, "intelligence": 0, "dexterity": 0, "constitution": 0, "luck": 0}
         for stat in stats:
-            stats[stat] = self.generatestats()
+            number = randint(1, 10)
+            stats[stat] = number
         print("Your stats are:\n"
               "Strength: %d\n"
               "Intelligence: %d\n"
@@ -128,14 +137,6 @@ class Basecharacter:
         self.stats["constitution"] = stats["constitution"]
         self.stats["luck"] = stats["luck"]
 
-    def generatestats(self):
-        minimum = 1
-        maximum = 10
-        number = randint(minimum, maximum)
-        if number == minimum:
-            minimum += 1
-            number = randint(minimum, maximum)
-        return number
 
     def chooseclass(self):
         choosing = True
@@ -178,13 +179,41 @@ class Basecharacter:
               "Luck: %d\n" % (self.name,
                               self.characterclass,
                               self.level,
-                              self.health,
-                              self.magic,
-                              self.stamina,
+                              self.stats["health"],
+                              self.stats["magic"],
+                              self.stats["stamina"],
                               self.stats["strength"],
                               self.stats["intelligence"], 
                               self.stats["dexterity"], 
                               self.stats["constitution"], 
                               self.stats["luck"]))
 
+
 Playercharacter = Basecharacter()
+
+
+def display_health():
+    display = int(round((Playercharacter.stats["health"] / 10)))
+    print("Hp:[" + "/" * display + "]")
+
+
+def display_magic():
+    display = int(round((Playercharacter.stats["magic"] / 10)))
+    print("Mp:[" + "/" * display + "]")
+
+
+def display_stamina():
+    display = int(round((Playercharacter.stats["stamina"] / 10)))
+    print("St:[" + "/" * display + "]")
+
+
+def display_exp():
+    print("Exp:[" + "-" * int(Playercharacter.experience / 100) + "]")
+
+
+def display_stats():
+    print("")
+    display_health()
+    display_magic()
+    display_stamina()
+    display_exp()
