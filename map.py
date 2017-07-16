@@ -73,10 +73,10 @@ def createmap(yposition, xposition, mapname):
             showmap[y].append([])
             showmap[y][x] = ""
     showmap[yposition][xposition] += "P"
-    displaymap()
+    display_map()
 
 
-def displaymap():
+def display_map():
     for y in showmap:
         print(y)
 
@@ -92,7 +92,7 @@ def redraw_character():
         showmap[position.map_y_position][position.map_x_position] = ">"
     else:
         showmap[position.map_y_position][position.map_x_position] = "P"
-    displaymap()
+    display_map()
 
 
 def turn_direction(direction):
@@ -127,4 +127,8 @@ def removeplayer():
 
 
 def spawnmonster():
+    return
+
+
+def check_infront():
     return
