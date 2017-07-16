@@ -7,29 +7,33 @@ class Playerposition:
 
     def moveplayerup(self):
         if not self.map_y_position == 0:
-            self.map_y_position = self.map_y_position - 1
-            self.facing_direction = "up"
+            if walk_check((self.map_y_position - 1), self.map_x_position):
+                self.map_y_position = self.map_y_position - 1
+                self.facing_direction = "up"
         else:
             print("Cannot move that way")
 
     def moveplayerleft(self):
         if not self.map_x_position == 0:
-            self.map_x_position = self.map_x_position - 1
-            self.facing_direction = "left"
+            if walk_check(self.map_y_position, (self.map_x_position - 1)):
+                self.map_x_position = self.map_x_position - 1
+                self.facing_direction = "left"
         else:
             print("Cannot move that way")
 
     def moveplayerright(self):
         if not self.map_x_position == (len(showmap[self.map_x_position]) - 1):
-            self.map_x_position = self.map_x_position + 1
-            self.facing_direction = "right"
+            if walk_check(self.map_y_position, (self.map_x_position + 1)):
+                self.map_x_position = self.map_x_position + 1
+                self.facing_direction = "right"
         else:
             print("Cannot move that way")
 
     def moveplayerdown(self):
         if not self.map_y_position == (len(showmap) - 1):
-            self.map_y_position = self.map_y_position + 1
-            self.facing_direction = "down"
+            if walk_check((self.map_y_position + 1), self.map_x_position):
+                self.map_y_position = self.map_y_position + 1
+                self.facing_direction = "down"
         else:
             print("Cannot move that way")
 
@@ -49,7 +53,13 @@ class Basemap:
     width = 0
     height = 0
     type = ""
-    monsters = []
+    monsters = {}
+    npc = {}
+    objects = {
+        "wall": {},
+        "door": {},
+        "chest": {},
+        "trap": {}}
 
 
 class Starting(Basemap):
@@ -57,12 +67,35 @@ class Starting(Basemap):
     width = 4
     height = 4
     type = "beginner"
-    monsters = []
+    objects = {
+        "wall": {"1": {"xposition": 1, "yposition": 1, "secret": False},
+                 "2": {"xposition": 1, "yposition": 2, "secret": True}},
+        "door": {"1": {"xposition": 1, "yposition": 0, "locked": False, "open": False},
+                 "2": {"xposition": 1, "yposition": 3, "locked": False, "open": True}},
+        "chest": {},
+        "trap": {},
+        "exit": {"1": {"xposition": 3, "yposition": 3, "map": "Starting2", "player_x": 3, "player_y": 1}}
+    }
+
+
+class Starting2(Basemap):
+    name = "Starting Area2"
+    width = 4
+    height = 4
+    type = "beginner"
+    objects = {
+        "wall": {},
+        "door": {},
+        "chest": {},
+        "trap": {},
+        "exit": {"1": {"xposition": 3, "yposition": 0, "map": "Starting", "player_x": 3, "player_y": 2}}
+    }
 
 
 position = Playerposition()
-maplist = {"Starting": Starting}
+maplist = {"Starting": Starting, "Starting2": Starting2}
 showmap = []
+
 
 def createmap(yposition, xposition, mapname):
     ysize = maplist[mapname].height
@@ -72,11 +105,12 @@ def createmap(yposition, xposition, mapname):
         for x in range(xsize):
             showmap[y].append([])
             showmap[y][x] = ""
+    place_objects(mapname)
     showmap[yposition][xposition] += "P"
-    display_map()
 
 
 def display_map():
+    print("Current Map: " + maplist[position.map_name].name)
     for y in showmap:
         print(y)
 
@@ -126,9 +160,102 @@ def removeplayer():
     showmap[yposition][xposition] = ""
 
 
-def spawnmonster():
+def spawn_monster(mapname):
+    if len(maplist[mapname].monsters) > 0:
+        return
+    else:
+        return
+
+
+def what_is_in_front():
+    if position.facing_direction == "up":
+        if position.map_y_position == "0":
+            return False
+        else:
+            return showmap[position.map_y_position - 1][position.map_x_position]
+    elif position.facing_direction == "down":
+        if position.map_y_position == len(showmap) - 1:
+            return False
+        else:
+            return showmap[position.map_y_position + 1][position.map_x_position]
+    elif position.facing_direction == "left":
+        if position.map_x_position == "0":
+            return False
+        else:
+            return showmap[position.map_y_position][position.map_x_position - 1]
+    elif position.facing_direction == "right":
+        if position.map_y_position == len(showmap[position.map_y_position]) - 1:
+            return False
+        else:
+            return showmap[position.map_y_position][position.map_x_position + 1]
+
+
+def walk_check(yposition, xposititon):
+    position_to_move = showmap[yposition][xposititon]
+    if "D" in list(position_to_move):
+        number = position_to_move.replace("D", "")
+        if maplist[position.map_name].objects["door"][number]["open"]:
+            return True
+        else:
+            print("The door appears to be closed")
+            return False
+    elif position_to_move == "C":
+        print("Something is Blocking the path")
+        return False
+    elif "T" in list(position_to_move):
+        return True
+    elif "X" in list(position_to_move):
+        number = position_to_move.replace("X", "")
+        move_to_map(number)
+        return False
+    elif "W" in list(position_to_move):
+        number = position_to_move.replace("W", "")
+        if maplist[position.map_name].objects["wall"][number]["secret"]:
+            return True
+        else:
+            print("Something is Blocking the path")
+            return False
+    else:
+        return True
+
+
+def check_in_front():
     return
 
 
-def check_infront():
-    return
+def reset_map():
+    global showmap
+    showmap = []
+
+
+def move_to_map(number):
+    map = maplist[position.map_name].objects["exit"][number]
+    position.map_name = map["map"]
+    position.map_x_position = map["player_x"]
+    position.map_y_position = map["player_y"]
+    reset_map()
+    createmap(position.map_y_position, position.map_x_position, position.map_name)
+
+
+def place_objects(mapname):
+    map = maplist[mapname]
+    if len(map.objects["wall"]) > 0:
+        mapw = map.objects["wall"]
+        for walls in mapw:
+            showmap[mapw[walls]["yposition"]][mapw[walls]["xposition"]] = "W" + str(walls)
+    if len(map.objects["door"]) > 0:
+        mapd = map.objects["door"]
+        for doors in mapd:
+            showmap[mapd[doors]["yposition"]][mapd[doors]["xposition"]] = "D" + str(doors)
+    if len(map.objects["chest"]) > 0:
+        mapc = map.objects["chest"]
+        for chests in mapc:
+            showmap[mapc[chests]["yposition"]][mapc[chests]["xposition"]] = "C" + str(chests)
+    if len(map.objects["trap"]) > 0:
+        mapt = map.objects["trap"]
+        for traps in mapt:
+            showmap[mapt[traps]["yposition"]][mapt[traps]["xposition"]] = "T" + str(traps)
+    if len(map.objects["exit"]) > 0:
+        mapexit = map.objects["exit"]
+        for exits in mapexit:
+            showmap[mapexit[exits]["yposition"]][mapexit[exits]["xposition"]] = "X" + str(exits)

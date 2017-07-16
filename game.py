@@ -33,6 +33,7 @@ while play:
         character_created = True
     if need_map:
         map.createmap(map.Playerposition.map_y_position, map.Playerposition.map_x_position, map.Playerposition.map_name)
+        map.display_map()
         need_map = False
     action = input(pc.state + " > ")
     if pc.state == "looking at menu":
