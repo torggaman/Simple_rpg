@@ -54,3 +54,25 @@ Choose Name
 Get stats
 Choose Class
 Get put into the starting area
+
+
+----
+Check in front?
+if something is in front of the user then list available action
+maybe set up a new state for the user to be in while looking at it
+
+----
+Aggresive for monsters - to attack if a player is near them
+How does the monster attack?
+
+--
+
+What should be used to represent different things - maybe have an icon variable for objects
+
+---
+Map interaction:
+traps - disarm
+door - open, unlock
+wall
+chest - open
+Exit

@@ -24,5 +24,7 @@ def playeraction(action):
         m.removeplayer()
         m.redraw_character()
         character.display_stats()
+    elif action == "check":
+        m.check_in_front()
     else:
         print("Please Try again")
