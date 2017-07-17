@@ -219,8 +219,39 @@ def walk_check(yposition, xposititon):
         return True
 
 
-def check_in_front():
+def check_door(door_number):
+    door = maplist[position.map_name].objects["door"][door_number]
+    if door["locked"]:
+        # have an if statement for if the user has a key to unlock the door
+        print("The door appears to be locked")
+    else:
+        if not door["open"]:
+            door["open"] = True
+            print("Door Opened")
     return
+
+
+def check_chest():
+    return
+
+
+def check_trap(trap_number):
+    trap = maplist[position.map_name].objects["trap"][trap_number]
+    if not trap["disarmed"]:
+        print("You activated the trap!")
+
+
+def check_in_front():
+    what_is_it = what_is_in_front()
+    if what_is_it == False:
+        print("There is nothing")
+    else:
+        what_is_it_list = list(what_is_it)
+        if "D" in what_is_it_list:
+            check_door(what_is_it.replace("D", ""))
+        elif "T" in what_is_it_list:
+            check_trap(what_is_it.replace("T", ""))
+
 
 
 def reset_map():

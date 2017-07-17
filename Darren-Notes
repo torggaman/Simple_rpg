@@ -68,3 +68,11 @@ How does the monster attack?
 --
 
 What should be used to represent different things - maybe have an icon variable for objects
+
+---
+Map interaction:
+traps - disarm
+door - open, unlock
+wall
+chest - open
+Exit
