@@ -1,16 +1,6 @@
 import character
-import classes
 import combat
-import items
-import load
-import magic
 import map
-import monsters
-import npc
-import quests
-import save
-import skills
-import dialog
 import actions
 import menus
 
@@ -32,13 +22,15 @@ while play:
         print("Welcome to the world")
         character_created = True
     if need_map:
-        map.createmap(map.Playerposition.map_y_position, map.Playerposition.map_x_position, map.Playerposition.map_name)
+        map.createmap(map.Playerposition.map_name)
         map.display_map()
         need_map = False
-    action = input(pc.state + " > ")
     if pc.state == "looking at menu":
-        menus.menuactions(action)
+        menus.menuactions()
     elif pc.state == "":
-        actions.playeraction(action)
+        actions.playeraction()
+    elif pc.state == "battle":
+        print("list of actions")
+        combat.combat_action()
     else:
         print()

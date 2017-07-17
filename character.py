@@ -11,10 +11,20 @@ class Basecharacter:
         "luck": 1,
         "health": 1,
         "magic": 1,
-        "stamina": 1
+        "stamina": 1,
+        "health_regen": 1,
+        "magic_regen": 1,
+        "stamina_regen": 1
     }
-    magic = 1
-    stamina = 1
+    equipped = {"head": {"name": "", "armor": 0, "special": {}},
+                "chest": {"name": "", "armor": 0, "special": {}},
+                "hand": {"name": "", "armor": 0, "special": {}},
+                "leg": {"name": "", "armor": 0, "special": {}},
+                "primary": {"name": "", "attack": 0, "special": {}, type: "melee"},
+                "off_hand": {"name": "", "attack": 0, "armor": 0, "special": {}, type: "melee"}}
+    damage_taken = 0
+    magic_used = 0
+    stamina_used = 0
     drop_Rate = 1
     questsTaken = []
     questsComplete = []
@@ -38,6 +48,7 @@ class Basecharacter:
     luckmodifier = 1
     requiredexperience = 1000
     state = ""
+    save_location = "Starting"
 
     def levelup(self):
         while self.experience >= (self.level * self.requiredexperience):
@@ -117,9 +128,15 @@ class Basecharacter:
         self.stats["magic"] = (basemagic + modifiedmagic) * self.magicmodifier
 
     def get_stats(self):
+        minimum = 1
+        maximum = 10
         stats = {"strength": 0, "intelligence": 0, "dexterity": 0, "constitution": 0, "luck": 0}
         for stat in stats:
-            number = randint(1, 10)
+            number = randint(minimum, maximum)
+            if number == maximum:
+                maximum -= 1
+            if number == minimum:
+                minimum += 1
             stats[stat] = number
         print("Your stats are:\n"
               "Strength: %d\n"
@@ -193,22 +210,22 @@ Playercharacter = Basecharacter()
 
 
 def display_health():
-    display = int(round((Playercharacter.stats["health"] / 10)))
-    print("Hp:[" + "/" * display + "]")
+    display = (Playercharacter.stats["health"] - Playercharacter.damage_taken)
+    print("HP: %d / %d" % (display, Playercharacter.stats["health"]))
 
 
 def display_magic():
-    display = int(round((Playercharacter.stats["magic"] / 10)))
-    print("Mp:[" + "/" * display + "]")
+    display = (Playercharacter.stats["magic"] - Playercharacter.magic_used)
+    print("MP: %d / %d" % (display, Playercharacter.stats["magic"]))
 
 
 def display_stamina():
-    display = int(round((Playercharacter.stats["stamina"] / 10)))
-    print("St:[" + "/" * display + "]")
+    display = Playercharacter.stats["stamina"] - Playercharacter.stamina_used
+    print("St: %d / %d" % (display, Playercharacter.stats["stamina"]))
 
 
 def display_exp():
-    print("Exp:[" + "-" * int(Playercharacter.experience / 100) + "]")
+    print("Exp: %d / %d" % (Playercharacter.experience, (Playercharacter.requiredexperience * Playercharacter.level)))
 
 
 def display_stats():
@@ -217,3 +234,17 @@ def display_stats():
     display_magic()
     display_stamina()
     display_exp()
+
+
+def calculate_damage():
+    pc = Playercharacter
+    weapontype = pc.equipped["primary"]["type"]
+    addweapontype = 0
+    if weapontype == "melee":
+        addweapontype = pc.stats["strength"]
+    elif weapontype == "ranged":
+        addweapontype = pc.stats["dexterity"]
+    elif weapontype == "magic":
+        addweapontype = pc.stats["intelligence"]
+    total_damage = pc.equipped["primary"]["attack"] + pc.equipped["off_hand"]["attack"] + addweapontype
+    return total_damage
