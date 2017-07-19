@@ -1,9 +1,13 @@
+import character
+from random import randint
+
 class Playerposition:
     map_x_position = 0
     map_y_position = 0
     map_name = ""
     room_name = ""
-    facing_direction = ""
+    facing_direction = "down"
+    monster_encountered = ""
 
     def moveplayerup(self):
         if not self.map_y_position == 0:
@@ -11,6 +15,7 @@ class Playerposition:
                 self.map_y_position = self.map_y_position - 1
                 self.facing_direction = "up"
         else:
+            turn_direction("up")
             print("Cannot move that way")
 
     def moveplayerleft(self):
@@ -19,6 +24,7 @@ class Playerposition:
                 self.map_x_position = self.map_x_position - 1
                 self.facing_direction = "left"
         else:
+            turn_direction("left")
             print("Cannot move that way")
 
     def moveplayerright(self):
@@ -27,6 +33,7 @@ class Playerposition:
                 self.map_x_position = self.map_x_position + 1
                 self.facing_direction = "right"
         else:
+            turn_direction("right")
             print("Cannot move that way")
 
     def moveplayerdown(self):
@@ -35,6 +42,7 @@ class Playerposition:
                 self.map_y_position = self.map_y_position + 1
                 self.facing_direction = "down"
         else:
+            turn_direction("down")
             print("Cannot move that way")
 
     def checksurroundings(self):
@@ -59,7 +67,8 @@ class Basemap:
         "wall": {},
         "door": {},
         "chest": {},
-        "trap": {}}
+        "trap": {},
+        "exit": {}}
 
 
 class Starting(Basemap):
@@ -76,6 +85,7 @@ class Starting(Basemap):
         "trap": {},
         "exit": {"1": {"xposition": 3, "yposition": 3, "map": "Starting2", "player_x": 3, "player_y": 1}}
     }
+    monsters = {"1": {"name": "Slime"}}
 
 
 class Starting2(Basemap):
@@ -90,14 +100,32 @@ class Starting2(Basemap):
         "trap": {},
         "exit": {"1": {"xposition": 3, "yposition": 0, "map": "Starting", "player_x": 3, "player_y": 2}}
     }
+    monsters = {"1": {"name": "Slime"}}
+
+
+class Battlefield(Basemap):
+    name = "Battlefield"
+    width = 5
+    height = 5
+
+
+class Bigbattlefield(Basemap):
+    name = "Big Battlefield"
+    width = 10
+    height = 10
 
 
 position = Playerposition()
-maplist = {"Starting": Starting, "Starting2": Starting2}
+maplist = {"Starting": Starting,
+           "Starting2": Starting2,
+           "Battlefield": Battlefield,
+           "Big Battlegfield": Bigbattlefield}
 showmap = []
 
 
-def createmap(yposition, xposition, mapname):
+def createmap(mapname):
+    yposition = position.map_y_position
+    xposition = position.map_x_position
     ysize = maplist[mapname].height
     xsize = maplist[mapname].width
     for y in range(ysize):
@@ -107,6 +135,9 @@ def createmap(yposition, xposition, mapname):
             showmap[y][x] = ""
     place_objects(mapname)
     showmap[yposition][xposition] += "P"
+    spawn_monster(mapname)
+    if character.Playercharacter.state == "battle":
+        showmap[maplist[mapname].height - 1][maplist[mapname].width - 1] = "M"
 
 
 def display_map():
@@ -126,7 +157,6 @@ def redraw_character():
         showmap[position.map_y_position][position.map_x_position] = ">"
     else:
         showmap[position.map_y_position][position.map_x_position] = "P"
-    display_map()
 
 
 def turn_direction(direction):
@@ -162,9 +192,15 @@ def removeplayer():
 
 def spawn_monster(mapname):
     if len(maplist[mapname].monsters) > 0:
-        return
-    else:
-        return
+        for m in maplist[mapname].monsters:
+            x_maximum = maplist[mapname].width - 1
+            y_maximum = maplist[mapname].height - 1
+            x_position = 0
+            y_position = 0
+            while not showmap[y_position][x_position] == "":
+                x_position = randint(0, x_maximum)
+                y_position = randint(0, y_maximum)
+            showmap[y_position][x_position] = "M" + str(m)
 
 
 def what_is_in_front():
@@ -184,15 +220,16 @@ def what_is_in_front():
         else:
             return showmap[position.map_y_position][position.map_x_position - 1]
     elif position.facing_direction == "right":
-        if position.map_y_position == len(showmap[position.map_y_position]) - 1:
+        if position.map_x_position == len(showmap[position.map_y_position]) - 1:
             return False
         else:
             return showmap[position.map_y_position][position.map_x_position + 1]
 
 
-def walk_check(yposition, xposititon):
-    position_to_move = showmap[yposition][xposititon]
-    if "D" in list(position_to_move):
+def walk_check(y_position, x_position):
+    position_to_move = showmap[y_position][x_position]
+    position_to_move_list = list(position_to_move)
+    if "D" in position_to_move_list:
         number = position_to_move.replace("D", "")
         if maplist[position.map_name].objects["door"][number]["open"]:
             return True
@@ -202,19 +239,25 @@ def walk_check(yposition, xposititon):
     elif position_to_move == "C":
         print("Something is Blocking the path")
         return False
-    elif "T" in list(position_to_move):
+    elif "T" in position_to_move_list:
         return True
-    elif "X" in list(position_to_move):
+    elif "X" in position_to_move_list:
         number = position_to_move.replace("X", "")
         move_to_map(number)
         return False
-    elif "W" in list(position_to_move):
+    elif "W" in position_to_move_list:
         number = position_to_move.replace("W", "")
         if maplist[position.map_name].objects["wall"][number]["secret"]:
             return True
         else:
             print("Something is Blocking the path")
             return False
+    elif "M" in position_to_move_list:
+        if not character.Playercharacter.state == "battle":
+            character.Playercharacter.state = "battle"
+            print(position_to_move)
+            position.monster_encountered = str(position_to_move.replace("M", ""))
+        return False
     else:
         return True
 
@@ -251,7 +294,10 @@ def check_in_front():
             check_door(what_is_it.replace("D", ""))
         elif "T" in what_is_it_list:
             check_trap(what_is_it.replace("T", ""))
-
+        elif "M" in what_is_it_list:
+            if not character.Playercharacter.state == "battle":
+                character.Playercharacter.state = "battle"
+                position.monster_encountered = str(what_is_it.replace("M", ""))
 
 
 def reset_map():
@@ -265,7 +311,7 @@ def move_to_map(number):
     position.map_x_position = map["player_x"]
     position.map_y_position = map["player_y"]
     reset_map()
-    createmap(position.map_y_position, position.map_x_position, position.map_name)
+    createmap(position.map_name)
 
 
 def place_objects(mapname):

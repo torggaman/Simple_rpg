@@ -3,7 +3,8 @@ import character
 listofactions = ["close", "inventory", "stats"]
 
 
-def menuactions(action):
+def menuactions():
+    action = input(character.Playercharacter.state + " > ")
     if action in listofactions:
         if action == "close":
             character.Playercharacter.state = ""

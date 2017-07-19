@@ -76,3 +76,18 @@ door - open, unlock
 wall
 chest - open
 Exit
+
+---
+How will combat work:
+player will be placed in the "Battlefield"
+what can they do:
+Try to run?
+Normal Attack
+Skill/ Magic
+Use an item
+How will normal attack work?
+
+Player or monster engages with the other
+then they get placed into the battle field
+then try to attack eachother using attacks or skills/spells
+
