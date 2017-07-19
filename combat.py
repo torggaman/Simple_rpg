@@ -57,7 +57,11 @@ def combat_action():
     elif action == "item":
         use_item()
     elif action == "turn":
-        map.turn_direction()
+        action = input("What Direction? ")
+        map.turn_direction(action)
+        map.redraw_character()
+        map.display_map()
+        character.display_stats()
     elif action in directions:
         map.removeplayer()
         if action == "up":
@@ -81,8 +85,9 @@ def attack():
         print("You swing for %d points of damage" % damage)
         bf.monster["damage_taken"] += damage
         check_monster_death()
-        monster_attack()
-        check_player_death()
+        if not bf.monster["name"] == "":
+            monster_attack()
+            check_player_death()
     else:
         print("Nothing to attack")
 
@@ -111,14 +116,18 @@ def check_monster():
 def check_monster_death():
     monster_name = bf.monster["name"]
     if bf.monster["damage_taken"] >= monsters.list_of_monster[monster_name].stats["health"]:
-        character.Playercharacter.experience += monsters.list_of_monster[monster_name].stats["experience"]
-        character.Playercharacter.money += monsters.list_of_monster[monster_name].stats["money"]
+        experience_gained = monsters.list_of_monster[monster_name].stats["experience"]
+        money_gained = monsters.list_of_monster[monster_name].stats["money"]
+        print(monster_name + " Has Been Defeated\n You gain:\n %d xp \n %d money" % (experience_gained, money_gained))
+        character.Playercharacter.experience += experience_gained
+        character.Playercharacter.money += money_gained
         character.Playercharacter.levelup()
         end_battle()
 
 
 def monster_attack():
-    monster_damage = monsters.list_of_monster[bf.monster["name"]].stats["attack"]
+    monster_name = bf.monster["name"]
+    monster_damage = monsters.list_of_monster[monster_name].stats["attack"]
     print("Monster hit you for %d points of damage" % monster_damage)
     character.Playercharacter.damage_taken += monster_damage
 
@@ -132,10 +141,14 @@ def check_player_death():
 def respawn_character():
     character.Playercharacter.state = ""
     map.position.map_name = character.Playercharacter.save_location
-    map.position.map_x_position = 0
-    map.position.map_y_position = 0
+    map.position.map_x_position = character.Playercharacter.save_location["x_position"]
+    map.position.map_y_position = character.Playercharacter.save_location["y_position"]
     clear_battlefield()
+    map.reset_map()
     map.createmap(map.position.map_name)
+    map.redraw_character()
+    map.display_map()
+    character.display_stats()
 
 
 def end_battle():
@@ -144,4 +157,8 @@ def end_battle():
     map.position.map_x_position = bf.player["previous_x"]
     map.position.map_y_position = bf.player["previous_y"]
     clear_battlefield()
+    map.reset_map()
     map.createmap(map.position.map_name)
+    map.redraw_character()
+    map.display_map()
+    character.display_stats()

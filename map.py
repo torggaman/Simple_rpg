@@ -220,7 +220,7 @@ def what_is_in_front():
         else:
             return showmap[position.map_y_position][position.map_x_position - 1]
     elif position.facing_direction == "right":
-        if position.map_y_position == len(showmap[position.map_y_position]) - 1:
+        if position.map_x_position == len(showmap[position.map_y_position]) - 1:
             return False
         else:
             return showmap[position.map_y_position][position.map_x_position + 1]

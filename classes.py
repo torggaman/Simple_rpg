@@ -2,7 +2,7 @@ import skills
 import character
 
 class Baseclass():
-    classname = ""
+    class_name = ""
     healthmodifier = 0
     magicmodifier = 0
     staminamodifier = 0
@@ -14,7 +14,7 @@ class Baseclass():
 
 
 class Adventurer(Baseclass):
-    classname = "Adventurer"
+    class_name = "Adventurer"
     healthmodifier = 0.5
     magicmodifier = 0.5
     staminamodifier = 0.5
@@ -30,7 +30,7 @@ class Adventurer(Baseclass):
 
 
 class Mage(Baseclass):
-    classname = "Mage"
+    class_name = "Mage"
     magicmodifier = 1
     staminamodifier = 0.5
     skills = ["Mage Skills"]
@@ -43,7 +43,7 @@ class Mage(Baseclass):
 
 
 class Warrior(Baseclass):
-    classname = "Warrior"
+    class_name = "Warrior"
     healthmodifier = 1
     staminamodifier = 0.5
     skills = ["Warrior Skills"]
@@ -67,7 +67,7 @@ class Warrior(Baseclass):
 class Merchant(Baseclass):
     healthmodifier = 0.5
     staminamodifier = 1
-    classname = "Merchant"
+    class_name = "Merchant"
     skills = ["Merchant"]
     subclasses = ["Blacksmith",
                   "Alchemist"]
@@ -83,7 +83,7 @@ class Merchant(Baseclass):
 class Cleric(Baseclass):
     magicmodifier = 0.5
     staminamodifier = 1
-    classname = "Cleric"
+    class_name = "Cleric"
     skills = ["Cleric"]
     subclasses = ["Priest"]
     weapons = ["mace",
@@ -95,7 +95,7 @@ class Cleric(Baseclass):
 
 class Archer(Baseclass):
     staminamodifier = 1.5
-    classname = "Archer"
+    class_name = "Archer"
     skills = ["Archer"]
     subclases = ["Ranger"]
     weapons = ["dagger",

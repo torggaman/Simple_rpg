@@ -21,7 +21,7 @@ class Slime(Basemonster):
              "attack": 1,
              "defense": 1,
              "type": "slime",
-             "experience": 10,
+             "experience": 500,
              "money": 5,
              "items": {},
              "attack_speed": 1,
