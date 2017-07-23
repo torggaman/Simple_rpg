@@ -1,6 +1,7 @@
 import character
 from random import randint
 
+
 class Playerposition:
     map_x_position = 0
     map_y_position = 0
@@ -13,7 +14,7 @@ class Playerposition:
         if not self.map_y_position == 0:
             if walk_check((self.map_y_position - 1), self.map_x_position):
                 self.map_y_position = self.map_y_position - 1
-                self.facing_direction = "up"
+            self.facing_direction = "up"
         else:
             turn_direction("up")
             print("Cannot move that way")
@@ -22,7 +23,7 @@ class Playerposition:
         if not self.map_x_position == 0:
             if walk_check(self.map_y_position, (self.map_x_position - 1)):
                 self.map_x_position = self.map_x_position - 1
-                self.facing_direction = "left"
+            self.facing_direction = "left"
         else:
             turn_direction("left")
             print("Cannot move that way")
@@ -31,7 +32,7 @@ class Playerposition:
         if not self.map_x_position == (len(showmap[self.map_x_position]) - 1):
             if walk_check(self.map_y_position, (self.map_x_position + 1)):
                 self.map_x_position = self.map_x_position + 1
-                self.facing_direction = "right"
+            self.facing_direction = "right"
         else:
             turn_direction("right")
             print("Cannot move that way")
@@ -40,7 +41,7 @@ class Playerposition:
         if not self.map_y_position == (len(showmap) - 1):
             if walk_check((self.map_y_position + 1), self.map_x_position):
                 self.map_y_position = self.map_y_position + 1
-                self.facing_direction = "down"
+            self.facing_direction = "down"
         else:
             turn_direction("down")
             print("Cannot move that way")
@@ -147,39 +148,38 @@ def display_map():
 
 
 def redraw_character():
-    if position.facing_direction == "up":
-        showmap[position.map_y_position][position.map_x_position] = "^"
-    elif position.facing_direction == "down":
-        showmap[position.map_y_position][position.map_x_position] = "v"
-    elif position.facing_direction == "left":
-        showmap[position.map_y_position][position.map_x_position] = "<"
-    elif position.facing_direction == "right":
-        showmap[position.map_y_position][position.map_x_position] = ">"
+    facing = position.facing_direction
+    x_position = position.map_x_position
+    y_position = position.map_y_position
+    if facing == "up":
+        showmap[y_position][x_position] = "^"
+    elif facing == "down":
+        showmap[y_position][x_position] = "v"
+    elif facing == "left":
+        showmap[y_position][x_position] = "<"
+    elif facing == "right":
+        showmap[y_position][x_position] = ">"
     else:
-        showmap[position.map_y_position][position.map_x_position] = "P"
+        showmap[y_position][x_position] = "P"
 
 
 def turn_direction(direction):
     if direction == "north" or direction == "up":
         if position.map_y_position == 0:
             print("Nothing that way")
-        else:
-            position.facing_direction = "up"
+        position.facing_direction = "up"
     elif direction == "south" or direction == "down":
         if position.map_y_position == len(showmap) - 1:
             print("Nothing that way")
-        else:
-            position.facing_direction = "down"
+        position.facing_direction = "down"
     elif direction == "west" or direction == "left":
         if position.map_x_position == 0:
             print("Nothing that way")
-        else:
-            position.facing_direction = "left"
+        position.facing_direction = "left"
     elif direction == "east" or direction == "right":
         if position.map_x_position == len(showmap[position.map_y_position]) - 1:
             print("Nothing that way")
-        else:
-            position.facing_direction = "right"
+        position.facing_direction = "right"
     else:
         print("Please try: up, down, left, right \n or north, south, east, west")
 
@@ -286,18 +286,18 @@ def check_trap(trap_number):
 
 def check_in_front():
     what_is_it = what_is_in_front()
-    if what_is_it == False:
+    if not what_is_it:
         print("There is nothing")
     else:
         what_is_it_list = list(what_is_it)
         if "D" in what_is_it_list:
             check_door(what_is_it.replace("D", ""))
-        elif "T" in what_is_it_list:
-            check_trap(what_is_it.replace("T", ""))
         elif "M" in what_is_it_list:
             if not character.Playercharacter.state == "battle":
                 character.Playercharacter.state = "battle"
                 position.monster_encountered = str(what_is_it.replace("M", ""))
+        else:
+            print("Nothing to check")
 
 
 def reset_map():

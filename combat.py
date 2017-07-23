@@ -3,12 +3,24 @@ import monsters
 import skills
 import magic
 import map
+from random import randint
+
+clean_monster = {"name": "",
+                 "damage_taken": 0,
+                 "x_position": 0,
+                 "y_position": 0,
+                 "facing": "up"}
+clean_player = {"previous_map_name": "",
+                "previous_x": 0,
+                "previous_y": 0}
+directions = ["up", "down", "left", "right"]
+list_of_actions = ["attack", "a", "skill", "s", "magic", "m", "item", "i"]
 
 
 class Battlefield:
     fighting = False
-    monster = {"name": "", "damage_taken": 0, "x_position": 0, "y_position": 0}
-    player = {"previous_map_name": "", "previous_x": 0, "previous_y": 0}
+    monster = clean_monster
+    player = clean_player
 
 
 bf = Battlefield()
@@ -16,8 +28,8 @@ bf = Battlefield()
 
 def clear_battlefield():
     bf.fighting = False
-    bf.monster = {"name": "", "damage_taken": 0, "x_position": 0, "y_position": 0}
-    bf.player = {"previous_map_name": "", "previous_x": 0, "previous_y": 0}
+    bf.monster = clean_monster
+    bf.player = clean_player
 
 
 def create_battlefield():
@@ -30,8 +42,8 @@ def create_battlefield():
     player["previous_x"] = map.position.map_x_position
     player["previous_y"] = map.position.map_y_position
     monster["name"] = monstername
-    monster["x_position"] = map.maplist[mapname].width
-    monster["y_position"] = map.maplist[mapname].height
+    monster["x_position"] = map.maplist[mapname].width - 1
+    monster["y_position"] = map.maplist[mapname].height - 1
     map.position.map_x_position = 0
     map.position.map_y_position = 0
     map.position.map_name = mapname
@@ -41,12 +53,10 @@ def create_battlefield():
     character.display_stats()
 
 
-directions = ["up", "down", "left", "right"]
-
-
 def combat_action():
     if not bf.fighting:
         create_battlefield()
+    print("Action: attack/[a], skill/[s], magic/[m], item/[i]")
     action = input(character.Playercharacter.state + " > ")
     if action == "attack":
         attack()
@@ -60,23 +70,111 @@ def combat_action():
         action = input("What Direction? ")
         map.turn_direction(action)
         map.redraw_character()
-        map.display_map()
-        character.display_stats()
     elif action in directions:
-        map.removeplayer()
-        if action == "up":
-            map.position.moveplayerup()
-        elif action == "down":
-            map.position.moveplayerdown()
-        elif action == "left":
-            map.position.moveplayerleft()
-        elif action == "right":
-            map.position.moveplayerright()
-        map.redraw_character()
-        map.display_map()
-        character.display_stats()
+        move_player(action)
     else:
         print("Try again")
+    check_monster_death()
+    if not bf.monster["name"] == "":
+        decide_monster_attack()
+        check_player_death()
+        map.display_map()
+        character.display_stats()
+
+
+def move_player(action):
+    map.removeplayer()
+    if action == "up":
+        map.position.moveplayerup()
+    elif action == "down":
+        map.position.moveplayerdown()
+    elif action == "left":
+        map.position.moveplayerleft()
+    elif action == "right":
+        map.position.moveplayerright()
+    map.redraw_character()
+
+
+def player_nearby(default_range=1):
+    target = ""
+    y_position = bf.monster["y_position"]
+    x_position = bf.monster["x_position"]
+    try:
+        if not y_position == 0:
+            target = map.showmap[y_position - default_range][x_position]
+        if not y_position == len(map.showmap) - 1:
+            target = target + map.showmap[y_position + default_range][x_position]
+        if not x_position == 0:
+            target = target + map.showmap[y_position][x_position - default_range]
+        if not x_position == len(map.showmap[y_position]) - 1:
+            target = target + map.showmap[y_position][x_position + default_range]
+        if not target == "":
+            return True
+        else:
+            return False
+    except IndexError:
+        return False
+
+
+def monster_movement():
+    player_y = map.position.map_y_position
+    player_x = map.position.map_x_position
+    monster_y = bf.monster["y_position"]
+    monster_x = bf.monster["x_position"]
+    direction_to_move = []
+    if monster_y < player_y:
+        direction_to_move.append("higher")
+    if monster_x < player_x:
+        direction_to_move.append("left_of")
+    if monster_y > player_y:
+        direction_to_move.append("lower")
+    if monster_x > player_x:
+        direction_to_move.append("right_of")
+    if len(direction_to_move) != 0 and not player_nearby():
+        choosen_move_direction = randint(0, len(direction_to_move) - 1)
+        remove_monster()
+        move_monster(direction_to_move[choosen_move_direction])
+        monster_combat_redraw()
+
+
+def move_monster(move):
+    if move == "higher":
+        bf.monster["y_position"] += 1
+        bf.monster["facing"] = "down"
+    elif move == "lower":
+        bf.monster["y_position"] -= 1
+        bf.monster["facing"] = "up"
+    elif move == "right_of":
+        bf.monster["x_position"] -= 1
+        bf.monster["facing"] = "left"
+    elif move == "left_of":
+        bf.monster["x_position"] += 1
+        bf.monster["facing"] = "right"
+    else:
+        print("Monster doesn't Move")
+
+
+def monster_combat_redraw():
+    facing = bf.monster["facing"]
+    x_position = bf.monster["x_position"]
+    y_position = bf.monster["y_position"]
+    icon = "M"
+    if facing == "up":
+        map.showmap[y_position][x_position] = icon
+    elif facing == "down":
+        map.showmap[y_position][x_position] = icon
+    elif facing == "left":
+        map.showmap[y_position][x_position] = icon
+    elif facing == "right":
+        map.showmap[y_position][x_position] = icon
+    else:
+        map.showmap[y_position][x_position] = icon
+
+
+def remove_monster():
+    x_position = bf.monster["x_position"]
+    y_position = bf.monster["y_position"]
+    map.showmap[y_position][x_position] = ""
 
 
 def attack():
@@ -84,10 +182,6 @@ def attack():
         damage = character.calculate_damage()
         print("You swing for %d points of damage" % damage)
         bf.monster["damage_taken"] += damage
-        check_monster_death()
-        if not bf.monster["name"] == "":
-            monster_attack()
-            check_player_death()
     else:
         print("Nothing to attack")
 
@@ -106,7 +200,6 @@ def use_item():
 
 def check_monster():
     whats_there = map.what_is_in_front()
-    print(whats_there)
     if whats_there == "M":
         return True
     else:
@@ -125,11 +218,38 @@ def check_monster_death():
         end_battle()
 
 
+def decide_monster_attack():
+    # depending on where the monster is located and type of monster they should
+    # provide a weight to know what to use
+    # if a monster has spells or skills they will be weighted lower than standard attack
+    if player_nearby():
+        chance = randint(0, 100)
+        weight = 0
+        if chance >= 30:
+            monster_attack()
+        elif chance >= 10:
+            monster_skill()
+        elif chance >= 0:
+            monster_spell()
+        else:
+            print("Did nothing")
+    else:
+        monster_movement()
+
+
 def monster_attack():
     monster_name = bf.monster["name"]
     monster_damage = monsters.list_of_monster[monster_name].stats["attack"]
     print("Monster hit you for %d points of damage" % monster_damage)
     character.Playercharacter.damage_taken += monster_damage
+
+
+def monster_skill():
+    print("Tried to Use a Skill")
+
+
+def monster_spell():
+    print("Tried to Case a Spell")
 
 
 def check_player_death():
