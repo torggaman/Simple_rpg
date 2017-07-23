@@ -249,7 +249,7 @@ def monster_skill():
 
 
 def monster_spell():
-    print("Tried to Case a Spell")
+    print("Tried to Cast a Spell")
 
 
 def check_player_death():
