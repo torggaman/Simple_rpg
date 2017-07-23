@@ -30,7 +30,6 @@ while play:
     elif pc.state == "":
         actions.playeraction()
     elif pc.state == "battle":
-        print("list of actions")
         combat.combat_action()
     else:
         print()
