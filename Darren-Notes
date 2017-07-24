@@ -91,3 +91,80 @@ Player or monster engages with the other
 then they get placed into the battle field
 then try to attack eachother using attacks or skills/spells
 
+Things that need to be done:
+Combat -
+-- Use Skill
+--- Skill effects
+-- Spell
+--- Draw spells when used
+-- Item Use
+-- Weakness
+-- Running
+-- Advanced AI
+-- More than 1 enemy
+
+Map -
+-- Handle Traps
+-- Random Map
+-- Living Maps/ World Map
+-- Dungeons
+-- Terrain
+-- Movement Speed
+
+
+Quests/ Missing -
+-- Rewards
+-- Multi part
+
+NPC -
+-- Dialog
+-- ? Team Members
+
+Class -
+-- Class Change
+-- Advanced Class
+
+Skills -
+-- Create Skills
+-- Learn Skills
+-- Skill Effects
+-- Skill Experience/ Levels
+-- Level Requirements
+
+Spells -
+-- Create Skills
+-- Learn/ Teach Spells
+-- Different Spell Effects
+-- Cast Time
+-- Group Casting?
+-- Spell Experience/ Levels
+-- Level Requirements
+
+Game -
+-- Tick system(Have the game running through checks ever "x" time
+-- Tutorial
+
+Monsters -
+-- Create Monsters
+-- Types of monsters
+-- Boss
+-- Raid?
+
+Network -
+-- Online Play
+
+GUI -
+-- Setup menus and UI
+
+Save -
+-- Auto Save
+-- Manual Save
+
+Load -
+-- Load Save
+
+Controls -
+-- Keyboard
+-- Controller
+
+Story -

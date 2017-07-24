@@ -22,14 +22,13 @@ class Battlefield:
     monster = clean_monster
     player = clean_player
 
+    def clear_battlefield(self):
+        self.fighting = False
+        self.monster = clean_monster
+        self.player = clean_player
+
 
 bf = Battlefield()
-
-
-def clear_battlefield():
-    bf.fighting = False
-    bf.monster = clean_monster
-    bf.player = clean_player
 
 
 def create_battlefield():
@@ -263,7 +262,7 @@ def respawn_character():
     map.position.map_name = character.Playercharacter.save_location
     map.position.map_x_position = character.Playercharacter.save_location["x_position"]
     map.position.map_y_position = character.Playercharacter.save_location["y_position"]
-    clear_battlefield()
+    bf.clear_battlefield()
     map.reset_map()
     map.createmap(map.position.map_name)
     map.redraw_character()
@@ -276,7 +275,7 @@ def end_battle():
     map.position.map_name = bf.player["previous_map_name"]
     map.position.map_x_position = bf.player["previous_x"]
     map.position.map_y_position = bf.player["previous_y"]
-    clear_battlefield()
+    bf.clear_battlefield()
     map.reset_map()
     map.createmap(map.position.map_name)
     map.redraw_character()
