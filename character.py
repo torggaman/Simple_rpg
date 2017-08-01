@@ -28,8 +28,8 @@ class Basecharacter:
                 "chest": {"name": "", "armor": 0, "special": {}},
                 "hand": {"name": "", "armor": 0, "special": {}},
                 "leg": {"name": "", "armor": 0, "special": {}},
-                "primary": {"name": "", "attack": 0, "special": {}, "type": "melee"},
-                "off_hand": {"name": "", "attack": 0, "armor": 0, "special": {}, "type": "melee"}}
+                "primary": {"name": "", "attack": 0, "magic_attack": 0, "special": {}, "type": "melee"},
+                "off_hand": {"name": "", "attack": 0, "magic_attack": 0, "armor": 0, "special": {}, "type": "melee"}}
     inventory = {}
     damage_taken = 0
     magic_used = 0
@@ -44,8 +44,8 @@ class Basecharacter:
     characterclass = []
     walkspeed = 1
     attackspeed = 1
-    actionskillslearned = []
-    passiveskillslearned = []
+    skills_learned = []
+    spells_learned = []
     requiredexperience = 1000
     state = ""
     save_location = {"map_name": "Starting", "x_position": 0, "y_position": 0}
@@ -116,6 +116,8 @@ class Basecharacter:
         self.get_health()
         self.get_magic()
         self.stats["stamina"] = 100 + (self.stats["dexterity"] * 2)
+        self.get_spells()
+        self.get_skills()
 
     def get_health(self):
         base_health = 100
@@ -185,6 +187,18 @@ class Basecharacter:
             except ValueError:
                 print("Please make sure you choose a number 1 - 6")
 
+    def get_spells(self):
+        character_spells = c.classes[Playercharacter.characterclass].spells
+        if len(character_spells) > 0:
+            for spells in character_spells:
+                Playercharacter.spells_learned.append(spells)
+
+    def get_skills(self):
+        character_skills = c.classes[Playercharacter.characterclass].skills
+        if len(character_skills) > 0:
+            for skills in character_skills:
+                Playercharacter.skills_learned.append(skills)
+
     def showstats(self):
         print("Name: %s\n"
               "Class: %s\n"
@@ -239,11 +253,49 @@ def display_stats():
     display_exp()
 
 
+def set_up_spell_list():
+    paging = 1
+    number = 0
+    known_spells = {}
+    for spells in Playercharacter.spells_learned:
+        if number == 5:
+            paging += 1
+            number = 0
+        if known_spells[str(paging)]:
+            known_spells[str(paging)].append(spells)
+            number += 1
+        else:
+            known_spells[str(paging)] = []
+            known_spells[str(paging)].append(spells)
+            number += 1
+
+
+def display_spells(spells):
+    displaying = True
+    display_page = 1
+    while displaying:
+        spells_to_display = "Page" + str(display_page) + "/ " + str(len(spells)) + "\n"
+        for spell in spells[display_page]:
+            spells_to_display = spells_to_display + spell + "/ "
+        print(spells_to_display)
+        action = input("\"next\" or \"previous\" page \n or \"close\"")
+        try:
+            if action == "next" and spells[display_page]:
+                display_page += 1
+            elif action == "previous" and display_page == 1:
+                display_page -= 1
+            elif action == "close":
+                displaying = False
+            else:
+                print("Please type one of the following: \nnext/ previous/ close")
+        except IndexError:
+            print("No more pages moving back to first page")
+            display_page = 1
+
+
 def calculate_damage():
     pc = Playercharacter
-    primary = pc.equipped["primary"]
-    weapontype = primary["type"]
-    weaponattack = primary["attack"]
+    weapontype = pc.equipped["primary"]["type"]
     addweapontype = 0
     if weapontype == "melee":
         addweapontype = pc.stats["strength"]
@@ -251,5 +303,12 @@ def calculate_damage():
         addweapontype = pc.stats["dexterity"]
     elif weapontype == "magic":
         addweapontype = pc.stats["intelligence"]
-    total_damage = weaponattack + pc.equipped["off_hand"]["attack"] + addweapontype
+    total_damage = pc.equipped["primary"]["attack"] + pc.equipped["off_hand"]["attack"] + addweapontype
+    return total_damage
+
+
+def calculate_magic_damage():
+    pc = Playercharacter
+    pcint = pc.stats["intelligence"]
+    total_damage = pcint + pc.equipped["primary"]["magic_attack"] + pc.equipped["off_hand"]["magic_attack"]
     return total_damage
