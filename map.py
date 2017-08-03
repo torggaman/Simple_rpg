@@ -336,3 +336,29 @@ def place_objects(mapname):
         mapexit = map.objects["exit"]
         for exits in mapexit:
             showmap[mapexit[exits]["yposition"]][mapexit[exits]["xposition"]] = "X" + str(exits)
+
+
+def in_front_of_player():
+    facing = position.facing_direction
+    if facing == "up" and position.map_y_position != 0:
+        return position.map_y_position - 1
+    elif facing == "down" and position.map_y_position != len(showmap) - 1:
+        return position.map_y_position + 1
+    elif facing == "left" and position.map_x_position != 0:
+        return position.map_x_position - 1
+    elif facing == "right" and position.map_x_position != len(showmap[position.map_y_position]) - 1:
+        return position.map_x_position + 1
+
+
+def can_place_in_front():
+    facing = position.facing_direction
+    if facing == "up" and position.map_y_position != 0:
+        return True
+    elif facing == "down" and position.map_y_position != len(showmap) - 1:
+        return True
+    elif facing == "left" and position.map_x_position != 0:
+        return True
+    elif facing == "right" and position.map_x_position != len(showmap[position.map_y_position]) - 1:
+        return True
+    else:
+        return False

@@ -12,7 +12,9 @@ clean_monster = {"name": "",
                  "facing": "up"}
 clean_player = {"previous_map_name": "",
                 "previous_x": 0,
-                "previous_y": 0}
+                "previous_y": 0,
+                "cast_time": 0}
+clean_projectile = {}
 directions = ["up", "down", "left", "right"]
 list_of_actions = ["attack", "a", "skill", "s", "magic", "m", "item", "i"]
 
@@ -21,6 +23,7 @@ class Battlefield:
     fighting = False
     monster = clean_monster
     player = clean_player
+    projectile = clean_projectile
 
     def clear_battlefield(self):
         self.fighting = False
@@ -52,9 +55,14 @@ def create_battlefield():
     character.display_stats()
 
 
-def combat_action():
+def turns():
     if not bf.fighting:
         create_battlefield()
+    combat_action()
+    monsters_turn()
+
+
+def combat_action():
     print("Action: attack/[a], skill/[s], magic/[m], item/[i]")
     action = input(character.Playercharacter.state + " > ")
     if action == "attack":
@@ -73,8 +81,13 @@ def combat_action():
         move_player(action)
     else:
         print("Try again")
-    check_monster_death()
-    if not bf.monster["name"] == "":
+
+
+def monsters_turn():
+    monster_name = bf.monster["name"]
+    if bf.monster["damage_taken"] >= monsters.list_of_monster[monster_name].stats["health"]:
+        battle_won(monster_name)
+    else:
         decide_monster_attack()
         check_player_death()
         map.display_map()
@@ -190,7 +203,224 @@ def use_skill():
 
 
 def use_magic():
+    players_spells = character.Playercharacter.spells_learned
+    known_spells = "Spells Known: "
+    for i in range(len(players_spells)):
+        known_spells = known_spells + players_spells[i] + " | "
+    # Pick a Spell
+    chosen_spell = choose_spell(known_spells, players_spells)
+    cast_spell(chosen_spell)
+    # check if the monster is in front
+    if not check_monster():
+        projectile_placement()
+        continue_moving = True
+        while continue_moving:
+            check_projectile_range()
+            if len(bf.projectile) < 1:
+                continue_moving = False
+            else:
+                if check_if_hit():
+                    damage_monster_spell(chosen_spell)
+                else:
+                    remove_projectile()
+                    projectile_travel()
+                    display_projectiles()
+                    check_all_projectiles()
+    else:
+        damage_monster_spell(chosen_spell)
+        return
+    # If the spell needs to be cast then a cast time starts and the player can't move(Maybe can turn)
+    # Spell is cast and effect takes place(Maybe check if a spell needs to move)
+
+
+def choose_spell(known_spells, players_spells):
+    # Display available spells(Have something next to ones when the user doesn't have enough magic to use)
+    choosing_spell = True
+    while choosing_spell:
+        print(known_spells)
+        action = input("Choose a spell: ")
+        if action in players_spells:
+            return action
+            choosing_spell = False
+        else:
+            print("Please choose the number next to the spell you want to cast")
+
+
+def cast_spell(spell):
+    if map.can_place_in_front():
+        spell_cast = magic.list_of_spells[spell]
+        magic_left = character.Playercharacter.stats["magic"] - character.Playercharacter.magic_used
+        if magic_left > spell_cast.magic_cost:
+            character.Playercharacter.magic_used += spell_cast.magic_cost
+            for projectiles in range(spell_cast.effects["projectile_number"]):
+                bf.projectile["p" + str(projectiles)] = {"x_position": 0,
+                                                         "y_position": 0,
+                                                         "range": spell_cast.effects["range"],
+                                                         "duration": spell_cast.effects["linger"],
+                                                         "facing": map.position.facing_direction}
+            if spell_cast.cast_time > 0:
+                bf.player["cast_time"] = spell_cast.cast_time
+            print("You cast %s" % spell)
+        else:
+            print("Not enough magic")
+    else:
+        print("Not Enough Room to cast")
+
+
+def projectile_placement():
+    facing = map.position.facing_direction
+    starting_position = map.in_front_of_player()
+    length_of_projectile = len(bf.projectile)
+    if length_of_projectile == 1:
+        single_projectile_placement()
+    elif length_of_projectile > 1:
+        projectile_initial_placement(starting_position)
+    display_projectiles()
+
+
+def check_all_projectiles():
+    projectiles_to_remove = []
+    for items in bf.projectile:
+        projectiles = bf.projectile[items]
+        facing = projectiles["facing"]
+        if check_edge(projectiles["x_position"], projectiles["y_position"], facing):
+            projectiles_to_remove.append(items)
+        else:
+            continue
+    if len(projectiles_to_remove) > 0:
+        list_of_projectiles_to_remove(projectiles_to_remove)
+
+
+def list_of_projectiles_to_remove(projectiles):
+    for names in projectiles:
+        clear_single_projectile(names)
+
+
+def clear_single_projectile(projectile_name):
+    map.showmap[bf.projectile[projectile_name]["y_position"]][bf.projectile[projectile_name]["x_position"]] = ""
+    del bf.projectile[projectile_name]
+
+
+def projectile_movement():
     return
+
+
+def check_if_hit():
+    projectile_to_remove = []
+    for items in bf.projectile:
+        if get_in_front_projectile(items) == "M":
+            projectile_to_remove.append(items)
+            return True
+        else:
+            return False
+    list_of_projectiles_to_remove(projectile_to_remove)
+
+
+def get_in_front_projectile(name):
+    facing = bf.projectile[name]["facing"]
+    x_position = bf.projectile[name]["x_position"]
+    y_position = bf.projectile[name]["y_position"]
+    if facing == "up":
+        y_position -= 1
+    elif facing == "down":
+        y_position += 1
+    elif facing == "left":
+        x_position -= 1
+    elif facing == "right":
+        x_position += 1
+    return map.showmap[y_position][x_position]
+
+
+def projectile_initial_placement(starting_position):
+    facing = map.position.facing_direction
+    projectile_number = 0
+    x_position_start = map.position.map_x_position
+    y_position_start = map.position.map_y_position
+    for projectile in bf.projectile:
+        if facing == "up" or facing == "down":
+            y_position_start = starting_position
+            projectile["y_position"] = y_position_start
+            projectile["x_position"] = x_position_start + projectile_number - 1
+            projectile_number += 1
+        elif facing == "left" or facing == "right":
+            x_position_start = starting_position
+            projectile["y_position"] = y_position_start + projectile_number - 1
+            projectile["x_position"] = x_position_start
+            projectile_number += 1
+
+
+def single_projectile_placement():
+    projectile_name = "p0"
+    projectiles = bf.projectile
+    facing = map.position.facing_direction
+    x_position_start = map.position.map_x_position
+    y_position_start = map.position.map_y_position
+    if facing == "up":
+        y_position_start -= 1
+    elif facing == "down":
+        y_position_start += 1
+    elif facing == "left":
+        x_position_start -= 1
+    elif facing == "right":
+        x_position_start += 1
+    place_projectile(projectile_name, x_position_start, y_position_start)
+
+
+def place_projectile(projectile_name, x_position, y_position):
+    projectile = bf.projectile[projectile_name]
+    projectile["x_position"] = x_position
+    projectile["y_position"] = y_position
+
+
+def projectile_travel():
+    for items in bf.projectile:
+        projectiles = bf.projectile[items]
+        if projectiles["facing"] == "up":
+            projectiles["y_position"] -= 1
+        elif projectiles["facing"] == "down":
+            projectiles["y_position"] += 1
+        elif projectiles["facing"] == "left":
+            projectiles["x_position"] -= 1
+        elif projectiles["facing"] == "right":
+            projectiles["x_position"] += 1
+
+
+def check_edge(x_position, y_position, facing):
+    at_edge = False
+    if facing == "left" or facing == "right":
+        if x_position == len(map.showmap[y_position])-1 or x_position == 0:
+            at_edge = True
+    elif facing == "up" or facing == "down":
+        if y_position == len(map.showmap)-1 or y_position == 0:
+            at_edge = True
+    return at_edge
+
+
+def check_projectile_range():
+    projectiles_to_remove = []
+    for name in bf.projectile:
+        if bf.projectile[name]["range"] > 0:
+            bf.projectile[name]["range"] -= 1
+        else:
+            projectiles_to_remove.append(name)
+    list_of_projectiles_to_remove(projectiles_to_remove)
+
+
+def remove_projectile():
+    for items in bf.projectile:
+        map.showmap[bf.projectile[items]["y_position"]][bf.projectile[items]["x_position"]] = ""
+
+
+def display_projectiles():
+    for items in bf.projectile:
+        map.showmap[bf.projectile[items]["y_position"]][bf.projectile[items]["x_position"]] = items
+    map.display_map()
+
+
+def damage_monster_spell(spell):
+    total_damage = character.calculate_magic_damage() + magic.list_of_spells[spell].magic_damage
+    bf.monster["damage_taken"] += total_damage
+    print("%s deals %d damage to %s" % (spell, total_damage, bf.monster["name"]))
 
 
 def use_item():
@@ -205,17 +435,14 @@ def check_monster():
         return False
 
 
-def check_monster_death():
-    monster_name = bf.monster["name"]
-    if bf.monster["damage_taken"] >= monsters.list_of_monster[monster_name].stats["health"]:
-        experience_gained = monsters.list_of_monster[monster_name].stats["experience"]
-        money_gained = monsters.list_of_monster[monster_name].stats["money"]
-        print(monster_name + " Has Been Defeated\n You gain:\n %d xp \n %d money" % (experience_gained, money_gained))
-        character.Playercharacter.experience += experience_gained
-        character.Playercharacter.money += money_gained
-        character.Playercharacter.levelup()
-        end_battle()
-
+def battle_won(monster_name):
+    experience_gained = monsters.list_of_monster[monster_name].stats["experience"]
+    money_gained = monsters.list_of_monster[monster_name].stats["money"]
+    print(monster_name + " Has Been Defeated\n You gain:\n %d xp \n %d money" % (experience_gained, money_gained))
+    character.Playercharacter.experience += experience_gained
+    character.Playercharacter.money += money_gained
+    character.Playercharacter.levelup()
+    end_battle()
 
 def decide_monster_attack():
     # depending on where the monster is located and type of monster they should
@@ -281,3 +508,15 @@ def end_battle():
     map.redraw_character()
     map.display_map()
     character.display_stats()
+
+
+def generic_use(x, y, z):
+    choosing = True
+    while choosing:
+        print(x)
+        action = input("Choose one: ")
+        if action in x:
+            return
+        else:
+            continue
+

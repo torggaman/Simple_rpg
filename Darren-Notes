@@ -168,3 +168,18 @@ Controls -
 -- Controller
 
 Story -
+
+--------------
+Spell Casting:
+Choose Spell
+See if there is room to cast >
+See if user has enough magic >
+See if there is a cast time >
+Cast Spell >
+Did the placement of the spell hit an enemy >
+Place Spells on map >
+If spells move, then move spell one block
+Did I hit an enemy
+Did I reach range
+If not continue moving one block and checking for monster then range
+
