@@ -30,6 +30,4 @@ while play:
     elif pc.state == "":
         actions.playeraction()
     elif pc.state == "battle":
-        combat.combat_action()
-    else:
-        print()
+        combat.turns()

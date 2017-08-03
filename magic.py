@@ -16,8 +16,8 @@ class Basicspell:
 
 class Fireball(Basicspell):
     name = "Fireball"
-    magic = 10
-    magic_damage = 15
+    magic_cost = 10
+    magic_damage = 5
     element = "fire"
     level = 1
     max_level = 5
@@ -25,13 +25,13 @@ class Fireball(Basicspell):
                "projectile_type": "ball",
                "linger": 0,
                "projectile_number": 1,
-               "range": 4}
+               "range": 2}
 
 
 class Iceball(Basicspell):
     name = "Iceball"
-    magic = 10
-    magic_damage = 10
+    magic_cost = 10
+    magic_damage = 3
     element = "ice"
     level = 1
     max_level = 3
