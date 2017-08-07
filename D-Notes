@@ -177,9 +177,14 @@ See if user has enough magic >
 See if there is a cast time >
 Cast Spell >
 Did the placement of the spell hit an enemy >
+What type of spell
 Place Spells on map >
+Does spell move or stay in place
+How long does it linger
 If spells move, then move spell one block
 Did I hit an enemy
+If enemy is hit what happens
+>>>>>>> basic-spell:D-Notes
 Did I reach range
 If not continue moving one block and checking for monster then range
 

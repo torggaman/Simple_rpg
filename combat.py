@@ -9,7 +9,8 @@ clean_monster = {"name": "",
                  "damage_taken": 0,
                  "x_position": 0,
                  "y_position": 0,
-                 "facing": "up"}
+                 "facing": "up",
+                 "state": ""}
 clean_player = {"previous_map_name": "",
                 "previous_x": 0,
                 "previous_y": 0,
@@ -29,6 +30,18 @@ class Battlefield:
         self.fighting = False
         self.monster = clean_monster
         self.player = clean_player
+
+    def check_monster_state(self):
+        return self.monster["state"]
+
+    def check_monster_name(self):
+        return self.monster["name"]
+
+    def check_monster_damage(self):
+        return self.monster["damage_taken"]
+
+    def check_cast_time(self):
+        return self.player["cast_time"]
 
 
 bf = Battlefield()
@@ -58,12 +71,25 @@ def create_battlefield():
 def turns():
     if not bf.fighting:
         create_battlefield()
-    combat_action()
+    # if Spell with duration, subtract by 1
+    if is_player_casting():
+        print("casting")
+    else:
+        combat_action()
     monsters_turn()
 
 
+def is_player_casting():
+    if bf.player["cast_time"] > 0:
+        bf.player["cast_time"] -= 1
+        return True
+    else:
+        return False
+
+
 def combat_action():
-    print("Action: attack/[a], skill/[s], magic/[m], item/[i]")
+    print("Players turn")
+    print("Action: attack/[a], skill/[s], magic/[m], item/[i], turn, \nor type the direction you want to move ")
     action = input(character.Playercharacter.state + " > ")
     if action == "attack":
         attack()
@@ -84,8 +110,9 @@ def combat_action():
 
 
 def monsters_turn():
+    print("Monsters Turn")
     monster_name = bf.monster["name"]
-    if bf.monster["damage_taken"] >= monsters.list_of_monster[monster_name].stats["health"]:
+    if bf.monster["damage_taken"] >= monsters.list_of_monster[monster_name].check_health():
         battle_won(monster_name)
     else:
         decide_monster_attack()
@@ -213,24 +240,45 @@ def use_magic():
     # check if the monster is in front
     if not check_monster():
         projectile_placement()
-        continue_moving = True
-        while continue_moving:
-            check_projectile_range()
-            if len(bf.projectile) < 1:
-                continue_moving = False
-            else:
-                if check_if_hit():
-                    damage_monster_spell(chosen_spell)
-                else:
-                    remove_projectile()
-                    projectile_travel()
-                    display_projectiles()
-                    check_all_projectiles()
+        get_projectile_type(chosen_spell)
     else:
         damage_monster_spell(chosen_spell)
-        return
     # If the spell needs to be cast then a cast time starts and the player can't move(Maybe can turn)
     # Spell is cast and effect takes place(Maybe check if a spell needs to move)
+
+
+def get_projectile_type(spell_name):
+    spell_type = magic.list_of_spells[spell_name].check_spell_type()
+    if spell_type == "ball":
+        spell_type_ball(spell_name)
+    elif spell_type == "wall":
+        spell_type_wall(spell_name)
+    elif spell_type == "line":
+        spell_type_line(spell_name)
+
+
+def spell_type_ball(chosen_spell):
+    continue_moving = True
+    while continue_moving:
+        check_projectile_range()
+        if len(bf.projectile) < 1:
+            continue_moving = False
+        else:
+            if check_if_hit():
+                damage_monster_spell(chosen_spell)
+            else:
+                remove_projectile()
+                projectile_travel()
+                display_projectiles()
+                check_all_projectiles()
+
+
+def spell_type_line(spell_name):
+    return
+
+
+def spell_type_wall(spell_name):
+    return
 
 
 def choose_spell(known_spells, players_spells):
@@ -265,6 +313,11 @@ def cast_spell(spell):
             print("Not enough magic")
     else:
         print("Not Enough Room to cast")
+
+
+def maintain_spell():
+    # Possible way of tracking spell?
+    return
 
 
 def projectile_placement():
@@ -351,7 +404,6 @@ def projectile_initial_placement(starting_position):
 
 def single_projectile_placement():
     projectile_name = "p0"
-    projectiles = bf.projectile
     facing = map.position.facing_direction
     x_position_start = map.position.map_x_position
     y_position_start = map.position.map_y_position
@@ -420,7 +472,31 @@ def display_projectiles():
 def damage_monster_spell(spell):
     total_damage = character.calculate_magic_damage() + magic.list_of_spells[spell].magic_damage
     bf.monster["damage_taken"] += total_damage
+    knock_back_number = magic.list_of_spells[spell].check_knock_back()
+    if knock_back_number > 0:
+        knock_back(knock_back_number)
     print("%s deals %d damage to %s" % (spell, total_damage, bf.monster["name"]))
+
+
+def knock_back(number_of_spaces):
+    facing = bf.monster["facing"]
+    x_position = bf.monster["x_position"]
+    y_position = bf.monster["y_position"]
+    for i in range(number_of_spaces):
+        try:
+            remove_monster()
+            if facing == "up":
+                bf.monster["y_position"] = y_position + 1
+            elif facing == "down":
+                bf.monster["y_position"] = y_position - 1
+            elif facing == "left":
+                bf.monster["x_position"] = x_position + 1
+            elif facing == "right":
+                bf.monster["x_position"] = x_position - 1
+            monster_combat_redraw()
+            map.display_map()
+        except IndexError:
+            continue
 
 
 def use_item():
@@ -436,13 +512,14 @@ def check_monster():
 
 
 def battle_won(monster_name):
-    experience_gained = monsters.list_of_monster[monster_name].stats["experience"]
-    money_gained = monsters.list_of_monster[monster_name].stats["money"]
-    print(monster_name + " Has Been Defeated\n You gain:\n %d xp \n %d money" % (experience_gained, money_gained))
-    character.Playercharacter.experience += experience_gained
-    character.Playercharacter.money += money_gained
+    money = monsters.list_of_monster[monster_name].check_money()
+    experience = monsters.list_of_monster[monster_name].check_experience()
+    print(monster_name + " Has Been Defeated\n You gain:\n %d xp \n %d money" % (experience, money))
+    character.Playercharacter.experience += experience
+    character.Playercharacter.money += money
     character.Playercharacter.levelup()
     end_battle()
+
 
 def decide_monster_attack():
     # depending on where the monster is located and type of monster they should
