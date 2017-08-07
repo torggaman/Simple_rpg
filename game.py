@@ -12,9 +12,6 @@ need_map = True
 # Run a check to see if player has a character
 
 
-def quitgame():
-    return
-
 while play:
     if not character_created:
         pc.create_character()

@@ -14,6 +14,27 @@ class Basemonster:
     spells = {}
     map_name = "Battlefield"
 
+    def check_health(self):
+        return self.stats["health"]
+
+    def check_attack(self):
+        return self.stats["attack"]
+
+    def check_defense(self):
+        return self.stats["defense"]
+
+    def check_type(self):
+        return self.stats["type"]
+
+    def check_experience(self):
+        return self.stats["experience"]
+
+    def check_money(self):
+        return self.stats["money"]
+
+    def check_items(self):
+        return self.stats["items"]
+
 
 class Slime(Basemonster):
     name = "Slime"
@@ -31,11 +52,17 @@ class Slime(Basemonster):
 
 class Speedslime(Slime):
     name = "Speed Slime"
-    stats = {"attack": 2,
-             "attack_speed": 2,
-             "movement_speed": 2,
-             "experience": 20,
-             "money": 10}
+    stats = {"health": 20,
+             "attack": 2,
+             "defense": 2,
+             "type": "",
+             "experience": 1000,
+             "money": 10,
+             "items": {},
+             "attack_speed": 1,
+             "attack_range": 1,
+             "movement_speed": 2}
+
 
 
 class Bossslime(Slime):
@@ -53,6 +80,10 @@ class Bossslime(Slime):
     map_name = "Big Battlefield"
 
 
-list_of_monster = {"Slime": Slime,
-                   "Speed Slime": Speedslime,
+s = Slime()
+ss = Speedslime()
+bs = Bossslime()
+
+list_of_monster = {"Slime": s,
+                   "Speed Slime": ss,
                    "Boss Slime": Bossslime}
