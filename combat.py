@@ -273,11 +273,11 @@ def spell_type_ball(chosen_spell):
                 check_all_projectiles()
 
 
-def spell_type_line():
+def spell_type_line(spell_name):
     return
 
 
-def spell_type_wall():
+def spell_type_wall(spell_name):
     return
 
 
